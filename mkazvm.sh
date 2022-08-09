@@ -3,9 +3,10 @@
 
 function genkeypairs(){
     if [ $# -eq 1 ]; then
-        local keyname="$1-KeyPair.pem"
+        local keyname="$HOME/.ssh/$1-KeyPair.pem"
+        #local keyname="$1-KeyPair.pem"
         if [ -f "$keyname" ]; then
-            >&2 echo "$keyname already exists. Use it instead? (y/n)"
+            >&2 echo "$keyname already exists. Use it instead? (Y/n) (Default: yes)"
             read user_sel
             case $user_sel in
             y|Y|yes)
@@ -15,9 +16,12 @@ function genkeypairs(){
                 >&2 echo "Quitting"
                 return 1
                 ;;
+            *)
+                echo "$keyname"
+                ;;
             esac
         else
-            ssh-keygen -m PEM -t rsa -b 4096 -f "$HOME/.ssh/$keyname"
+            ssh-keygen -m PEM -t rsa -b 4096 -f $keyname
             chmod 400 $keyname
             echo -e "$keyname"
         fi
@@ -37,7 +41,7 @@ function mkazvm(){
     --image $vmi_sel \
     --size $vm_size \
     --authentication-type "ssh" \
-    --ssh-key-values "./$keypair_path" \
+    --ssh-key-values "$keypair_path" \
     --admin-username $adminuser \
     --no-wait
 }
@@ -104,8 +108,9 @@ echo $auth_sel
 case $auth_sel in
 1)
     #echo "we got $(genkeypairs $name_sel)"
-    keypair_path=$(genkeypairs $name_sel)
+    keypair_path="$(genkeypairs $name_sel).pub"
     mkazvm
+    #echo "$keypair_path"
     ;;
 2)
     #echo "Retrieve keypairs from azure"
