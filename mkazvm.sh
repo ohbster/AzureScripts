@@ -65,7 +65,12 @@ for i in ${!resource_groups[@]}; do
     echo -e "$i)\t${resource_groups[$i]}"
 done
 echo -e "\nSelect a resource group"
-read rg_sel
+read user_sel
+if [ -z $user_sel ]
+then
+    echo "Invalid resource group. Exiting"
+    exit
+fi
 rg_sel=${resource_groups[$user_sel]}
 
 #get available images
